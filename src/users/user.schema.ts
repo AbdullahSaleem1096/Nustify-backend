@@ -6,7 +6,7 @@ export class User extends Document {
   @Prop({ required: true })
   username: string;
 
-  @Prop({ required: true, unique: true, index: true, immutable:true })
+  @Prop({ required: true, unique: true, index: true, immutable: true })
   email: string;
 
   @Prop({ required: true, minlength: 6 })
@@ -15,34 +15,68 @@ export class User extends Document {
   @Prop({ required: true, enum: ['buyer', 'seller'] })
   role: string;
 
-  @Prop({ required: true})
+  @Prop({ required: true })
   phoneNumber: string;
 
-  @Prop({required:true, enum: ['hostelite','dayscholar']})
-  residencyStatus: 'hostelite' | 'dayscholar'
+  @Prop({ required: true, enum: ['hostelite', 'dayscholar'] })
+  residencyStatus: 'hostelite' | 'dayscholar';
 
   @Prop({
-    required:true,
-    enum: ['SINES', 'SEECS', 'SMME', 'SNS', 'NBS', 'SCME', 'NICE', 'NIPCONS','ASAB','SADA','NSTP','RIMMES','IAEC','RIC','Main Office']
+    required: true,
+    enum: [
+      'SINES',
+      'SEECS',
+      'SMME',
+      'SNS',
+      'NBS',
+      'SCME',
+      'NICE',
+      'NIPCONS',
+      'ASAB',
+      'SADA',
+      'NSTP',
+      'RIMMES',
+      'IAEC',
+      'RIC',
+      'Main Office',
+    ],
   })
   department: string;
 
   @Prop({
-    enum: ['rumi','johar','ghazali','beruni','razi','rahmat','attar','liaquat','hajveri','zakariya','fatima_I','fatima_block_II','fatima_block_III','zainab','ayesha','khadija','amna']}
-  )
-  Hostel ?: string;
+    enum: [
+      'rumi',
+      'johar',
+      'ghazali',
+      'beruni',
+      'razi',
+      'rahmat',
+      'attar',
+      'liaquat',
+      'hajveri',
+      'zakariya',
+      'fatima_I',
+      'fatima_block_II',
+      'fatima_block_III',
+      'zainab',
+      'ayesha',
+      'khadija',
+      'amna',
+    ],
+  })
+  Hostel?: string;
 
   @Prop()
-  RoomNumber ?: number;
+  RoomNumber?: number;
 
   @Prop({ default: 0 })
   wallet: number;
 
-//   @Prop()
-//   verifyToken?: string;
+  //   @Prop()
+  //   verifyToken?: string;
 
-//   @Prop()
-//   VerifyTokenExpiry?: string;
+  //   @Prop()
+  //   VerifyTokenExpiry?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
