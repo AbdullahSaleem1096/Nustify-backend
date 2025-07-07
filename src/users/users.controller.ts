@@ -5,6 +5,8 @@ import {
   Get,
   HttpStatus,
   HttpCode,
+  Delete,
+  Param
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -24,6 +26,7 @@ export class UsersController {
 
 
   @Post('SignUp')
+  @Roles(Role.Buyer,Role.Seller)
   async create(@Body() createUserDto: CreateUserDto) {
     this.usersService.create(createUserDto);
   }
@@ -39,5 +42,11 @@ export class UsersController {
   @Roles(Role.Buyer, Role.Seller)
   login(@Body() loginUserDto: LoginUserDto) {
     return this.usersService.findOne(loginUserDto);
+  }
+
+  @Delete('delete/:id')
+  @Roles(Role.Admin)
+  async deleteUser(@Param('id')id:string){
+    return this.usersService.deleteUser(id);
   }
 }
