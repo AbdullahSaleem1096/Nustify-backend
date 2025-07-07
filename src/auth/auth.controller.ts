@@ -2,12 +2,16 @@ import { Controller, HttpCode, HttpStatus, Post, Body, Get, UseGuards, Request }
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { Throttle,ThrottlerGuard } from '@nestjs/throttler';
+
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService){}
 
     @HttpCode(HttpStatus.OK)
+    @UseGuards(ThrottlerGuard)
+    @Throttle({default:{ limit: 10, ttl: 3600000 }})
     @Post('login')
     async signIn(@Body() loginUserDto:LoginUserDto) {
         return this.authService.signIn(loginUserDto);
