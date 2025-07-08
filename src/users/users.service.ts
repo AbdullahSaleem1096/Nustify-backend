@@ -8,6 +8,8 @@ import { User } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bycrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.dto';
+
 
 
 @Injectable()
@@ -54,5 +56,17 @@ export class UsersService {
     return {
         message: "User deleted successfully"
     }
+  }
+
+  async updateUser(userId: string, updateUserDto:UpdateUserDto): Promise<User>{
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+        userId,
+        updateUserDto,
+        {new:true}
+    );
+    if(!updatedUser){
+        throw new NotFoundException(`User not found exception`);
+    }
+    return updatedUser;
   }
 }

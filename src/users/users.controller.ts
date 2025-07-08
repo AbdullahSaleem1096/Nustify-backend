@@ -6,9 +6,11 @@ import {
   HttpStatus,
   HttpCode,
   Delete,
-  Param
+  Param,
+  Patch,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UseGuards } from '@nestjs/common';
@@ -36,6 +38,15 @@ export class UsersController {
   async findAll() {
     return this.usersService.findAll();
   }
+
+  @Patch('update/:id')
+  @Roles(Role.Buyer,Role.Seller)
+  @UseGuards(AuthGuard)
+  async updateUser(
+    @Param('id')id:string,
+    @Body() updateUserDto: UpdateUserDto){
+        return this.usersService.updateUser(id, updateUserDto)
+    }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
