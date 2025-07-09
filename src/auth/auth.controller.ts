@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, HttpCode, HttpStatus, Post, Body, Get, UseGuards, Request, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
@@ -13,7 +13,7 @@ export class AuthController {
     @UseGuards(ThrottlerGuard)
     @Throttle({default:{ limit: 10, ttl: 3600000 }})
     @Post('login')
-    async signIn(@Body() loginUserDto:LoginUserDto) {
+    async signIn(@Body(new ValidationPipe({groups:['login']})) loginUserDto:LoginUserDto) {
         return this.authService.signIn(loginUserDto);
       }
     

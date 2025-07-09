@@ -8,6 +8,8 @@ import {
   Delete,
   Param,
   Patch,
+  Req,
+  ValidationPipe
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -15,27 +17,26 @@ import { UsersService } from './users.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { RolesGuard } from 'src/auth/roles/roles.guard';
 import { Roles } from 'src/auth/roles/roles.decorator';
 import { Role } from 'src/auth/roles/role.enum';
+import { User } from './user.schema';
 
 
 
 @Controller('users')
-@UseGuards(AuthGuard,RolesGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
 
   @Post('SignUp')
   @Roles(Role.Buyer,Role.Seller)
-  async create(@Body() createUserDto: CreateUserDto) {
-    this.usersService.create(createUserDto);
+  async create(@Body(new ValidationPipe({groups:['create']})) createUserDto: CreateUserDto): Promise<User> {
+    return await this.usersService.create(createUserDto);
   }
 
   @Roles(Role.Admin)
   @Get('all-users')
-  async findAll() {
+  async findAll():Promise<User[]> {
     return this.usersService.findAll();
   }
 
@@ -43,21 +44,21 @@ export class UsersController {
   @Roles(Role.Buyer,Role.Seller)
   @UseGuards(AuthGuard)
   async updateUser(
-    @Param('id')id:string,
-    @Body() updateUserDto: UpdateUserDto){
-        return this.usersService.updateUser(id, updateUserDto)
+    @Req() req,
+    @Body(new ValidationPipe({groups:['update']})) updateUserDto: UpdateUserDto):Promise<User>{
+        return this.usersService.updateUser(req.user.sub, updateUserDto)
     }
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @Roles(Role.Buyer, Role.Seller)
-  login(@Body() loginUserDto: LoginUserDto) {
+  login(@Body() loginUserDto: LoginUserDto):Promise<User|undefined> {
     return this.usersService.findOne(loginUserDto);
   }
 
   @Delete('delete/:id')
   @Roles(Role.Admin)
-  async deleteUser(@Param('id')id:string){
+  async deleteUser(@Param('id')id:string):Promise<{message:string}>{
     return this.usersService.deleteUser(id);
   }
 }

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { Role } from 'src/auth/roles/role.enum'
 
 @Schema({ timestamps: true })
 export class User extends Document {
@@ -12,14 +13,14 @@ export class User extends Document {
   @Prop({ required: true, minlength: 6 })
   password: string;
 
-  @Prop({ required: true, enum: ['buyer', 'seller'] })
+  @Prop({ required: true, enum: Role })
   role: string;
 
   @Prop({ required: true })
   phoneNumber: string;
 
   @Prop({ required: true, enum: ['hostelite', 'dayscholar'] })
-  residencyStatus: 'hostelite' | 'dayscholar';
+  residenceStatus: 'hostelite' | 'dayscholar';
 
   @Prop({
     required: true,
