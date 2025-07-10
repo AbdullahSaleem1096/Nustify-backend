@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         }
       ]
     }),
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

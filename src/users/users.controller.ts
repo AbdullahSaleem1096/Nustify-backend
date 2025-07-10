@@ -23,7 +23,7 @@ import { User } from './user.schema';
 
 
 
-@Controller('users')
+@Controller({path:'users',version:'1'})
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -37,7 +37,8 @@ export class UsersController {
   @Roles(Role.Admin)
   @Get('all-users')
   async findAll():Promise<User[]> {
-    return this.usersService.findAll();
+    const users = await this.usersService.findAll();
+    return users
   }
 
   @Patch('update/:id')

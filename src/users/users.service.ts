@@ -36,7 +36,7 @@ export class UsersService {
 
 
   async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+    return this.userModel.find().select('-password -_id -__v');
   }
 
 
