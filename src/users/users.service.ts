@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Logger
 } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -12,6 +13,8 @@ import * as bycrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as crypto from 'crypto'
 import { MailService } from '../auth/email/send-verfication-email';
+import { Cron, CronExpression } from '@nestjs/schedule'
+
 
 
 
@@ -19,8 +22,18 @@ import { MailService } from '../auth/email/send-verfication-email';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly logger = new Logger(UsersService.name)
 ) {}
+
+  @Cron(CronExpression.EVERY_HOUR)
+  async deleteUnverifiedUsers() {
+    const result = await this.userModel.deleteMany({
+      isVerified: false,
+      VerifyTokenExpiry: { $lt: new Date() },
+    });
+    this.logger.log(`Deleted ${result.deletedCount} unverified users`);
+  }
 
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -64,7 +77,6 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     return this.userModel.find().select('-password -_id -__v');
   }
-
 
   async findOne(loginUserDto: LoginUserDto): Promise<User | undefined> {
     const user = await this.userModel.findOne({ email: loginUserDto.email });
