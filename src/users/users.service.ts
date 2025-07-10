@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,17 +10,22 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as bycrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as crypto from 'crypto'
+import { MailService } from '../auth/email/send-verfication-email';
 
 
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    private readonly mailService: MailService
 ) {}
 
 
   async create(createUserDto: CreateUserDto): Promise<User> {
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const verifyTokenExpiry = new Date(Date.now() + 24*60*60*1000);
     const saltOrRounds = 10;
     const hashedPassword = await bycrypt.hash(
       createUserDto.password,
@@ -30,10 +36,30 @@ export class UsersService {
     const createdUser = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
+      verifyToken,
+      VerifyTokenExpiry:verifyTokenExpiry,
+      isVerified: false
     });
-    return createdUser.save();
+    await this.mailService.sendVerificationEmail(createdUser.email,verifyToken)
+    return await createdUser.save();
   }
 
+  async verifyEmailToken(token:string):Promise<{message:string}>{
+    const user = await this.userModel.findOne({
+      verifyToken:token,
+      VerifyTokenExpiry: {$gt: new Date()},
+    });
+    if(!user){
+      throw new BadRequestException('Invalid or Expired token')
+    };
+    user.isVerified = true;
+    user.verifyToken = undefined;
+    user.VerifyTokenExpiry = undefined;
+    await user.save();
+    return {
+      message: "email verified successfully"
+    };
+  }
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().select('-password -_id -__v');

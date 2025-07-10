@@ -57,6 +57,11 @@ export class UsersController {
     return this.usersService.findOne(loginUserDto);
   }
 
+  @Get('verify-email/:token')
+  async verifyEmail(@Param('token') token:string): Promise<{message:string}>{
+    return this.usersService.verifyEmailToken(token);
+  }
+
   @Delete('delete/:id')
   @Roles(Role.Admin)
   async deleteUser(@Param('id')id:string):Promise<{message:string}>{

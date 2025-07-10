@@ -75,11 +75,14 @@ export class User extends Document {
   @Prop({ default: 0 })
   wallet: number;
 
-  //   @Prop()
-  //   verifyToken?: string;
+  @Prop()
+  verifyToken?: string;
 
-  //   @Prop()
-  //   VerifyTokenExpiry?: string;
+  @Prop()
+  VerifyTokenExpiry?: Date;
+
+  @Prop({default:false})
+  isVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -21,6 +21,9 @@ export class AuthService {
             if (!isPasswordValid) {
                 throw new UnauthorizedException();
             }
+            if(!user?.isVerified){
+                throw new UnauthorizedException('Login failed. Your email is not verified')
+            }
             const payload = {
                 sub: user._id,
                 email: user.email,
