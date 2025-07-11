@@ -9,7 +9,6 @@ export class Product extends Document {
         required: true,
       })
       sellerId: MongooseSchema.Types.ObjectId;
-      
 
     @Prop({required:true})
     productName:string;

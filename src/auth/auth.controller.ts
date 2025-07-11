@@ -5,7 +5,7 @@ import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { Throttle,ThrottlerGuard } from '@nestjs/throttler';
 
 
-@Controller('auth')
+@Controller({path:'auth',version:'1'})
 export class AuthController {
     constructor(private authService: AuthService){}
 

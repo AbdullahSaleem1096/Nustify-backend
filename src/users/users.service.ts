@@ -20,10 +20,10 @@ import { Cron, CronExpression } from '@nestjs/schedule'
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
-    private readonly mailService: MailService,
-    private readonly logger = new Logger(UsersService.name)
+    private readonly mailService: MailService
 ) {}
 
   @Cron(CronExpression.EVERY_HOUR)

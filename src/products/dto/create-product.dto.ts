@@ -1,7 +1,5 @@
-import {IsMongoId, IsString, IsEnum, IsNumber, Min} from 'class-validator'
+import { IsString, IsEnum, IsNumber, Min} from 'class-validator'
 export class CreateProductDto{
-    @IsMongoId({groups:['create','update']})
-    sellerId: string;
 
     @IsString({groups:['create','update','summary']})
     productName: string;

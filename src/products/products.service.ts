@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Product } from './products.schema';
-import {Model} from 'mongoose'
+import {Model,Types} from 'mongoose'
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -11,8 +11,11 @@ export class ProductsService {
         @InjectModel(Product.name) private productModel: Model<Product>
     ){}
 
-    async create(createProductDto:CreateProductDto):Promise<Product>{
-        const createdProduct = new this.productModel(createProductDto);
+    async create(createProductDto:CreateProductDto, sellerId: string):Promise<Product>{
+        const createdProduct = new this.productModel({
+            ...createProductDto,
+            sellerId: new Types.ObjectId(sellerId),
+        });
         return createdProduct.save();
     }
 
@@ -28,27 +31,32 @@ export class ProductsService {
         return this.productModel.find(
             {}, 'productName price images'
         )
-        .exec();
+        .lean()
+        .exec()
     }
 
-    async deleteProduct(productId:string):Promise<{message:string}>{
-        const deleteProduct = await this.productModel.findByIdAndDelete(productId);
-        if(!deleteProduct){
+    async deleteProduct(sellerId:string, productId:string):Promise<{message:string}>{
+        const product = await this.productModel.findById(productId);
+        if(!product){
             throw new NotFoundException('Product not found');
         }
+        if(product.sellerId.toString() !== sellerId){
+            throw new UnauthorizedException('You are not autherized to delete this product');
+        }
+        await product.deleteOne();
         return {
             message: 'Product deleted successfully'
         }
     }
-    async updateProduct(productId:string, updateProductDto:UpdateProductDto):Promise<Product>{
-        const updatedProduct = await this.productModel.findByIdAndUpdate(
-            productId,
-            updateProductDto,
-            {new:true}
-        );
-        if(!updatedProduct){
-            throw new NotFoundException('Product not found exception');
+    async updateProduct(sellerId:string, productId:string, updateProductDto:UpdateProductDto):Promise<Product>{
+        const product = await this.productModel.findById(productId);
+        if(!product){
+            throw new NotFoundException('Product not found');
         }
-        return updatedProduct;
+        if(product.sellerId.toString() !== sellerId){
+            throw new ForbiddenException('You are not authorized to update this product');
+        }
+        Object.assign(product,updateProductDto)
+        return product.save();
     }
 }

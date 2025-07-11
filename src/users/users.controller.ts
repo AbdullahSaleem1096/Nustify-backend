@@ -27,7 +27,6 @@ import { User } from './user.schema';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-
   @Post('SignUp')
   @Roles(Role.Buyer,Role.Seller)
   async create(@Body(new ValidationPipe({groups:['create']})) createUserDto: CreateUserDto): Promise<User> {

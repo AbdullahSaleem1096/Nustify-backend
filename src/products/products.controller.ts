@@ -14,8 +14,12 @@ export class ProductsController {
     @Post('create-product')
     @Roles(Role.Seller)
     @UseGuards(AuthGuard)
-    async create(@Body(new ValidationPipe({groups:['create']}))createProductDto: CreateProductDto): Promise<Product>{
-        return await this.productService.create(createProductDto);
+    async create(@Req() req, @Body(new ValidationPipe({groups:['create']}))createProductDto: CreateProductDto): Promise<Product>{
+        const sellerId = req.user.sub;
+        return await this.productService.create(
+            createProductDto,
+            sellerId
+        );
     }
 
     @Patch('update/:id')
@@ -23,15 +27,22 @@ export class ProductsController {
     @UseGuards(AuthGuard)
     async updateProduct(
         @Param('id') id:string,
+        @Req() req,
         @Body(new ValidationPipe({groups:['update']})) updateProductDto:UpdateProductDto):Promise<Product>{
-            return this.productService.updateProduct(id,updateProductDto)
+            return this.productService.updateProduct(req.user.sub,id,updateProductDto)
         }
 
     @Delete('delete/:id')
     @Roles(Role.Seller,Role.Admin)
     @UseGuards(AuthGuard)
-    async deleteProduct(@Param('id') id : string): Promise<{message:string}>{
-            return this.productService.deleteProduct(id)
+    async deleteProduct(@Req() req,@Param('id') id : string): Promise<{message:string}>{
+            return this.productService.deleteProduct(req.user.sub,id)
+    }
+
+    @Get('all')
+    @Roles(Role.Admin,Role.Buyer,Role.Seller)
+    async getProductForHome(): Promise<Product[]>{
+        return this.productService.findAllForHome();
     }
 
     @Get(':id')
@@ -39,5 +50,6 @@ export class ProductsController {
     async getProductById(@Param('id') id:string): Promise<Product>{
         return this.productService.findById(id);
     }
-}
 
+
+}
